@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" xmlns:th="https://www.thymeleaf.org"
+	xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+<meta charset="UTF-8">
+<title>Exami</title>
+<!-- Bootstrap CSS -->
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+<link rel="stylesheet" href="/css/dashboard.css">
+<!-- Boxicons CDN Link -->
+<link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css'
+	rel='stylesheet'>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+	<div class="sidebar">
+		<div class="logo-details">
+			<i class='bx bxs-cube-alt'></i> <a th:href="@{/}"> <span
+				class="logo_name">Exami</span></a>
+		</div>
+		<ul class="nav-links">
+			<li><a th:href="@{/admin_Home}" class="active"> <i
+					class='bx bx-grid-alt'></i> <span class="links_name">Dashboard</span>
+			</a></li>
+			<li><a th:href="@{/admin_ManageUser}"> <i
+					class='bx bxs-user-detail'></i> <span class="links_name">Manage
+						User</span>
+			</a></li>
+			<li><a th:href="@{/admin_Manage_Schedule}"> <i
+					class='bx bxs-time-five'></i> <span class="links_name">Manage
+						Schedule</span>
+			</a></li>
+			<li><a th:href="@{/admin_EnrollStudent}"> <i
+					class='bx bxs-user-plus'></i><span class="links_name">Enroll
+						Student</span>
+			</a></li>
+			<li class="log_out"><a
+				href="javascript: document.logoutForm.submit()"> <i
+					class='bx bx-log-out'></i> <span class="links_name">Log out</span>
+			</a></li>
+		</ul>
+		<form th:action="@{/logout}" th:hidden="true" method="post"
+			name="logoutForm">
+			<input type="submit" value="Sign Out" />
+		</form>
+	</div>
+	<section class="home-section">
+		<nav>
+			<div class="sidebar-button">
+				<i class='bx bx-menu sidebarBtn'></i> <span class="dashboard">Manage
+					Schedule</span>
+			</div>
+			<p id="profileRole">
+				[[${#request.userPrincipal.principal.username}]] | Role : <b><span
+					sec:authentication="principal.authorities">Roles</span></b>
+			</p>
+		</nav>
+
+		<div class="home-content">
+			<div id="crud-btn-grp" class="row">
+				<div class="col-12 mb-3">
+					<form th:action="@{/admin_Manage_Schedule}">
+						<div class="row">
+							<div class="col-3">
+								<input type="text" name="keyword" class="form-control" required>
+							</div>
+							<div class="col-9">
+								<button class="btn btn-primary px-3">Search</button>
+								<button id="clearScheduleListFilter"
+									onclick="clearScheudleListFilter()"
+									class="btn btn-secondary px-3">Clear</button>
+								<button type="button" class="btn btn-danger px-3 "
+									data-toggle="modal" data-target="#addNewExamModal">New
+									Exam Schedule</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+
+			<div class="table-data-boxes">
+				<table class="table table-hover table-sm">
+					<thead class="thead-dark">
+						<tr>
+							<th>Exam ID</th>
+							<th>Subject</th>
+							<th>Date</th>
+							<th>Duration(hours)</th>
+							<th>Start Time</th>
+							<th>End Time</th>
+							<th>Score</th>
+							<th>Question Type</th>
+							<th>Status</th>
+							<th>Action</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr th:each="exam: ${listExam}">
+							<td th:text="${exam.id}">Exam ID</td>
+							<td th:text="${exam.subject}">Subject Name</td>
+							<td th:text="${exam.date}">Date</td>
+							<td th:text="${exam.duration}" >Duration (hours)</td>
+							<td th:text="${exam.startTime}">Start Time</td>
+							<td th:text="${exam.endTime}">End Time</td>
+							<td th:text="${exam.score}">Score</td>
+							<td th:text="${exam.questionType}">Question Type</td>
+							<!--<td th:text="${exam.status}">Status</td> -->
+							<td th:switch="${exam.status}">
+								<span class="badge rounded-pill bg-danger" th:case="${'Incomplete'}">Incomplete</span>
+								<span class="badge rounded-pill bg-success" th:case="${'Complete'}">Complete</span>
+							</td>
+							<td>
+								<div>
+									<a th:href="@{/getOneExamSchedule/(id=${exam.id})}" type="button" class="btn btn-primary px-3" id = "editExamButton"
+										data-toggle="modal" data-target="#editExamSchModal">Edit</a>
+									<a th:href="@{/deleteSchedule/{id}(id=${exam.id})}"
+										type="button" class="btn btn-primary px-3"
+										id="deleteExamSchButton">Delete</a>
+
+									<!-- Edit the Exam Modal -->
+									<div class="modal fade" id="editExamSchModal"
+										data-backdrop="static" data-keyboard="false" tabindex="-1"
+										aria-labelledby="staticBackdropLabel" aria-hidden="true">
+										<form id="updateExamForm " th:action="@{/updateExamSchedule}">
+											<div class="modal-dialog">
+												<div class="modal-content">
+													<div class="modal-header">
+														<h5 class="modal-title" id="modalLabel">Edit User</h5>
+														<button type="button" class="btn-close"
+															data-dismiss="modal" aria-label="Close"></button>
+													</div>
+													<div class="modal-body">
+														<div class="mb-2">
+															<label for="id" class="col-form-label">Exam ID</label> <input
+																type="text" class="form-control" id="examIDEdit"
+																name="id" readonly required>
+														</div>
+														<div class="mb-2">
+															<label for="subject" class="col-form-label">Subject</label>
+															<select class="form-control" id="subjectEdit" name="subject" required>
+																<option value=""></option>
+																<option th:each="subject:${subjectList}" th:text="${subject.name}"></option>
+															</select>
+														</div>
+														<div class="mb-2">
+															<label for="date" class="col-form-label">Date</label> <input
+																type="date" class="form-control" id="dateEdit" name="date" required>
+														</div>
+														<div class="mb-2">
+															<label for="duration" class="col-form-label">Duration</label>
+															<input type="number" class="form-control" id="durationEdit" name="duration"
+																min="0" max="3"required>
+														</div>
+														<div class="mb-2">
+															<label for="time" class="col-form-label">Start
+																Time</label> <input type="time" class="form-control" id="startTimeEdit"
+																name="startTime"required>
+														</div>
+														<div class="mb-2">
+															<label for="time" class="col-form-label">End Time</label>
+															<input type="time" class="form-control" id="endTimeEdit" name="endTime"
+																 required>
+														</div>
+														<div class="mb-2">
+															<label for="status" class="col-form-label">Status</label>
+															<select class="form-control" id="statusEdit"
+																name="status" required>
+																<option value=""></option>
+																<option value="Incomplete">Incomplete</option>
+																<option value="Complete">Complete</option>
+															</select>
+														</div>
+
+														<div class="mb-2">
+															<label for="questionType" class="col-form-label">Question
+																Type</label> <select class="form-control" id="questionTypeEdit"
+																name="questionType" required>
+																<option value=""></option>
+																<option value="Multiple Choice Question">Multiple
+																	Choice Question(MCQ)</option>
+																<option value="Subjective Question">Subjective
+																	Question</option>
+																<option value="Mixed">MCQ + Subjective Question</option>
+															</select>
+														</div>
+
+														<div class="mb-2">
+															<label for="score" class="col-form-label">Allocated
+																Mark</label> <input type="number" step="10" class="form-control"
+																id="scoreEdit" name="score" min="0" max="100"
+																required>
+														</div>
+													</div>
+													<div class="modal-footer">
+														<button type="button" class="btn btn-secondary"
+															data-dismiss="modal">No</button>
+														<button type="submit" class="btn btn-primary">Yes,Edit</button>
+													</div>
+												</div>
+											</div>
+										</form>
+									</div>
+
+
+									<!-- Delete the exam Modal -->
+									<div class="modal fade" id="deleteExamSchModal"
+										data-backdrop="static" data-keyboard="false" tabindex="-1"
+										aria-labelledby="staticBackdropLabel" aria-hidden="true">
+										<div class="modal-dialog">
+											<div class="modal-content">
+												<div class="modal-header">
+													<i class='bx bxs-error er-icon'></i>
+													<h5 class="modal-title" id="deleteModalTitle">Confirm
+														Delete</h5>
+													<button type="button" class="btn-close"
+														data-dismiss="modal" aria-label="Close"></button>
+												</div>
+												<div class="modal-body">Are you sure want to delete
+													this record ?</div>
+												<div class="modal-footer">
+													<button type="button" class="btn btn-secondary"
+														data-dismiss="modal">No</button>
+													<a href="" id="delExamSchRef" type="button"
+														class="btn btn-primary">Yes, Delete</a>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<!-- Add New Exam Modal -->
+		<div class="modal fade" id="addNewExamModal" data-backdrop="static"
+			data-keyboard="false" tabindex="-1"
+			aria-labelledby="staticBackdropLabel" aria-hidden="true">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="modalLabel">Schedule New Exam</h5>
+						<button type="button" class="btn-close" data-dismiss="modal"
+							aria-label="Close"></button>
+					</div>
+					<div class="modal-body">
+						<form id="adminAddExamForm" method="POST"
+							th:action="@{/process_AdminAddExam}" th:object="${exam}">
+							<div class="mb-2">
+								<label for="subject" class="col-form-label">Subject</label>
+								<select class="form-control" id="subject" name="subject"required>
+									<option value=""></option>
+									<option th:each="subject:${subjectList}" th:text="${subject.name}"></option>
+								</select>
+							</div>
+							<div class="mb-2">
+								<label for="date" class="col-form-label">Date</label> <input
+									type="date" class="form-control" id="date" th:field="*{date}"
+									required>
+							</div>
+							<div class="mb-2">
+								<label for="duration" class="col-form-label">Duration</label> <input
+									type="number" class="form-control" id="duration" min="0"
+									max="3" th:field="*{duration}" required>
+							</div>
+							<div class="mb-2">
+								<label for="time" class="col-form-label">Start Time</label> <input
+									type="time" class="form-control" id="time"
+									th:field="*{startTime}" required>
+							</div>
+							<div class="mb-2">
+								<label for="time" class="col-form-label">End Time</label> <input
+									type="time" class="form-control" id="time"
+									th:field="*{endTime}" required>
+							</div>
+							<div class="mb-2">
+								<label for="status" class="col-form-label">Status</label> <input
+									type="text" class="form-control" id="status"
+									th:field="*{status}" readonly required>
+							</div>
+
+							<div class="mb-2">
+								<label for="questionType" class="col-form-label">Question
+									Type</label> <select class="form-control" id="questionType"
+									name="questionType" th:field="*{questionType}" required>
+									<option value=""></option>
+									<option value="Multiple Choice Question">Multiple
+										Choice Question(MCQ)</option>
+									<option value="Subjective Question">Subjective
+										Question</option>
+									<option value="Mixed">MCQ + Subjective Question</option>
+								</select>
+							</div>
+
+							<div class="mb-2">
+								<label for="score" class="col-form-label">Allocated Mark</label>
+								<input type="number" step="10" class="form-control" id="score"
+									min="0" max="100" th:field="*{score}" required>
+							</div>
+						</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary"
+							data-dismiss="modal">Close</button>
+						<button type="submit" id="submitAddExamFormBtn"
+							class="btn btn-primary">Submit</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</section>
+
+	<script>
+		let sidebar = document.querySelector(".sidebar");
+		let sidebarBtn = document.querySelector(".sidebarBtn");
+		sidebarBtn.onclick = function() {
+			sidebar.classList.toggle("active");
+			if (sidebar.classList.contains("active")) {
+				sidebarBtn.classList.replace("bx-menu", "bx-menu-alt-right");
+			} else
+				sidebarBtn.classList.replace("bx-menu-alt-right", "bx-menu");
+		}
+
+		document.getElementById("status").defaultValue = "Incomplete";
+	</script>
+
+</body>
+<script
+	src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+	integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+	crossorigin="anonymous"></script>
+<script
+	src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"
+	type="text/javascript"></script>
+<script
+	src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.min.js"
+	integrity="sha384-oesi62hOLfzrys4LxRF63OJCXdXDipiYWBnvTl9Y9/TRlw5xlKIEHpNyvvDShgf/"
+	crossorigin="anonymous"></script>
+<script src="js/main.js"></script>
+</html>

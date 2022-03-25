@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org">
+<head>
+<!-- Required meta tags -->
+<title>Users List</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Bootstrap CSS -->
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+	rel="stylesheet"
+	integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3"
+	crossorigin="anonymous">
+<body class="bg-light">
+	<nav class="navbar navbar-expand-lg py-2 navbar-dark bg-dark">
+		<div class="container">
+			<a th:href="@{/}" class="navbar-brand mb-0 h1">Exami</a>
+			<div >
+				<span class="navbar-text px-3">[[${#request.userPrincipal.principal.username}]] </span>
+				<a class="btn btn-secondary ms-lg-3">Log Out</a>
+			</div>
+
+		</div>
+	</nav>
+	<div class="container mt-5">
+		<div>
+			<form th:action="@{/logout}" method="post">
+				<p>
+					Welcome <b>[[${#request.userPrincipal.principal.username}]]</b>
+				</p>
+				<input type="submit" value="Sign Out" />
+			</form>
+		</div>
+		<div>
+			<h1>List of Users</h1>
+		</div>
+
+		<div>
+			<table class="table table-striped table-bordered">
+				<thead class="thead-dark">
+					<tr>
+						<th>User ID</th>
+						<th>E-mail</th>
+						<th>User Name</th>
+						<th>Gender</th>
+						<th>Role</th>
+						<th>Education Institution</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="user: ${listUsers}">
+						<td th:text="${user.id}">User ID</td>
+						<td th:text="${user.email}">E-mail</td>
+						<td th:text="${user.username}">User Name</td>
+						<td th:text="${user.gender}">Gender</td>
+						<td th:text="${user.role}">Role</td>
+						<td th:text="${user.eduInst}">Educational Institution</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</body>
+</html>

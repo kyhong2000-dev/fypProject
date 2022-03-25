@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" xmlns:th="https://www.thymeleaf.org"
+	xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
+<head>
+<meta charset="UTF-8">
+<title>Exami</title>
+<!-- Bootstrap CSS -->
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+	rel="stylesheet">
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="/richtext/richtext.min.css">
+<link rel="stylesheet" href="/css/dashboard.css">
+<!-- Boxicons CDN Link -->
+<link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css'
+	rel='stylesheet'>
+
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+	<div class="sidebar">
+		<div class="logo-details">
+			<i class='bx bxs-cube-alt'></i> <a th:href="@{/}"> <span
+				class="logo_name">Exami</span></a>
+		</div>
+		<ul class="nav-links">
+			<li><a th:href="@{/lecturer_Home}" class="active"><i
+					class='bx bxs-user-plus'></i> <span class="links_name">Exam
+						Details</span> </a></li>
+			<li><a th:href="@{/lecturer_QuestionBank}"> <i
+					class='bx bx-book-content'></i> <span class="links_name">Question
+						Bank</span>
+			</a></li>
+			<li><a th:href="@{/lecturer_ExamGrading}"><i
+					class='bx bx-check-square'></i><span class="links_name">Exam
+						Grading</span> </a></li>
+			<li class="log_out"><a
+				href="javascript: document.logoutForm.submit()"> <i
+					class='bx bx-log-out'></i> <span class="links_name">Log out</span>
+			</a></li>
+		</ul>
+		<form th:action="@{/logout}" th:hidden="true" method="post"
+			name="logoutForm">
+			<input type="submit" value="Sign Out" />
+		</form>
+	</div>
+	<section class="home-section">
+		<nav>
+			<div class="sidebar-button">
+				<i class='bx bx-menu sidebarBtn'></i> <span class="dashboard">Question
+					Bank</span>
+			</div>
+
+			<div class="dropdown">
+				<a class="dropdown-toggle" data-toggle="dropdown"> <i
+					id="profile-icon" class='bx bx-user'></i> <span id="profile-text"
+					th:text="${profile_Username}"></span>
+				</a>
+				<div class="dropdown-menu">
+					<a class="dropdown-item"><b>Email ：</b>
+						[[${#request.userPrincipal.principal.username}]]</a> <a
+						class="dropdown-item"><b>Role ：</b> <span
+						sec:authentication="principal.authorities">Roles</span></a>
+				</div>
+			</div>
+
+
+		</nav>
+
+		<div class="home-content">
+			<div class = "pages-tabs">
+				<ul class="nav nav-tabs" id="myTab" role="tablist">
+					<li class="nav-item" role="presentation">
+						<button class="nav-link active" id="home-tab" data-toggle="tab"
+							data-target="#new-question" type="button" role="tab"
+							aria-controls="home" aria-selected="true">Add New Question</button>
+					</li>
+					<li class="nav-item" role="presentation">
+						<button class="nav-link" id="profile-tab" data-toggle="tab"
+							data-target="#categorize" type="button" role="tab"
+							aria-controls="profile" aria-selected="false">Categorize</button>
+					</li>
+					<li class="nav-item" role="presentation">
+						<button class="nav-link" id="contact-tab" data-toggle="tab"
+							data-target="#question-list" type="button" role="tab"
+							aria-controls="contact" aria-selected="false">Question List</button>
+					</li>
+				</ul>
+				
+				<div class="tab-content" id="myTabContent">
+					<div class="tab-pane fade show active" id="new-question" role="tabpanel" aria-labelledby="new-question-tab">
+						<div class = "catgeory-sec" style="margin-top:20px;">
+							
+							<label for="category" class="form-label">Choose a question type: </label>
+							<div class= "row" >
+								<div class = "col-7">
+								 	<select class="form-control" id = "qType" name="qType" style="width:100%;">
+										<option value=""></option>
+										<option value="objective">Objective Question</option>
+										<option value="subjective">Subjective Question</option>
+									</select>
+								</div>
+								<div class ="col-1">
+									<button id="clear-btn" type="button" class="btn btn-primary">Clear</button>
+								</div>
+								
+								<div id="objective" style="margin-top:30px;">
+									
+									<h4>Objective Question</h4>
+									<hr>
+									<form id="addObjQuestionForm" method="POST" th:action="@{/lecturer_AddNewQuestion}" th:object= "${objectivequestion}">
+										<input type="hidden" id ="questionType" name ="questionType" >
+										<div class="mb-1">
+											<label for = "question-content" class= "col-form-label">Question</label>
+											<input type ="text" class="form-control" th:field="*{questionContent}" id="question-content" placeholder="Enter question content.    e.g: xxxxxxxx ?">
+										</div>
+										<div class="row">
+											<div class="col-1">
+												<span id="choice-a-label" style="font-size:25px;"><i class='bx bx-dots-vertical-rounded' style="font-size:25px; margin-top:24px; color:grey; "></i> A: </span>
+												<span id="choice-b-label" style="font-size:25px;"><i class='bx bx-dots-vertical-rounded' style="font-size:25px; margin-top:24px; color:grey; "></i> B: </span>
+												<span id="choice-c-label" style="font-size:25px;"><i class='bx bx-dots-vertical-rounded' style="font-size:25px; margin-top:24px; color:grey; "></i> C: </span>
+												<span id="choice-d-label" style="font-size:25px;"><i class='bx bx-dots-vertical-rounded' style="font-size:25px; margin-top:24px; color:grey; "></i> D: </span>
+											</div>
+											<div class="col-10">
+												<input id="choice-a-content" th:field="*{choiceAContent}" type="text"class="form-control" name="question-content" style="margin-left:-40px; margin-top:20px;" placeholder="Enter choice A content">
+											 	<input id="choice-b-content" th:field="*{choiceBContent}" type="text" class="form-control" name="question-content" style="margin-left:-40px; margin-top:20px;" placeholder="Enter choice B content">
+											 	<input id="choice-c-content" th:field="*{choiceCContent}" type="text" class="form-control" name="question-content" style="margin-left:-40px; margin-top:20px;" placeholder="Enter choice C content">
+											 	<input id="choice-d-content" th:field="*{choiceDContent}" type="text" class="form-control" name="question-content" style="margin-left:-40px; margin-top:20px;" placeholder="Enter choice D content">
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-2">
+												<label for ="correct-ans" class="form-label" style="margin-top:24px;">Correct Answer: </label>
+											</div>
+											<div class="col-1">
+												<select id="correct-ans-text" class="form-control text-center" th:field="*{correctAnswer}" style="margin-top:20px; margin-left:-80px; width:55%;" required>
+													<option value=""></option>
+													<option value="A">A</option>
+													<option value="B">B</option>
+													<option value="C">C</option>
+													<option value="D">D</option>
+												</select>
+											</div>
+										</div>
+										<div class= " mt-3 mb-5">
+											<button type="submit" id="submitObjQuestionFormBtn" class="btn btn-primary">Add New Question</button>
+										</div>
+									</form>
+								</div>
+					
+								<div id="subjective" style="margin-top:30px;">
+									
+									<h4>Subjective Question</h4>
+									<hr>
+									<form id="addSbjQuestionForm" method="POST" th:action="@{/lecturer_AddNewQuestion}" th:object= "${subjectivequestion}">
+										<input type="hidden" id ="questionType" name ="questionType" >
+										<div class="mb-2">
+											<label for = "question" class= "col-form-label">Question</label>
+											<input type ="text" class="form-control"  th:field="*{questionContent}" id="question-content" placeholder="Enter question content.    e.g: xxxxxxxx ?">
+										</div>
+										<div>
+											<label for = "question-content" class= "col-form-label">Content</label>
+											<textarea class="form-control" th:field="*{questionAnswer}" id="questionAnswer" name="questionAnswer"></textarea>
+										</div>
+										<div class="mb-3 mt-4">
+											<button type="submit" class="btn btn-primary">Add New Question</button>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+					
+					
+					<div class="tab-pane fade" id="categorize" role="tabpanel" aria-labelledby="categorize-tab">
+						<div id="ct-sec">
+							Categorize
+						</div>
+					</div>
+					<div class="tab-pane fade" id="question-list" role="tabpanel" aria-labelledby="question-list-tab">
+						<div class = "questionList-sec" style="margin-top:20px;">
+							<div class="row">
+								<div class="col-1">
+									<label for="filter-label" class="form-label" style ="margin-top:5px;">Filter by: </label>
+								</div>
+								<div class="col-5 mb-2">
+									<form id = "qForm" th:action = "@{/lecturer_QuestionBank}">
+										<input type="hidden" id ="keyword" name ="keyword">
+										<select class="form-control" id="choices" name="choices" style="margin-left:-20px;">										
+											<option value=""></option>
+											<option value="" disabled>Question Type</option>
+											<option value="Objective Question">Objective Question</option>
+											<option value="Subjective Question">Subjective Question</option>
+										</select>
+									</form>
+									
+								</div>
+							</div>
+							<div class="table-list-content">
+								<div class ="question-tbl-data-boxes">
+									<table class="table table-hover table-sm">
+										<thead class="thead-dark">
+											<tr>
+												<th>Question ID</th>
+												<th>Question Content</th>
+												<th>Created By & Time</th>
+												<th>Question Type</th>
+												<th>Action</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr th:each="question: ${listQuestion}">
+												<td th:text="${question.id}">Question ID</td>
+												<td>
+													<div id="obj-question">
+														<span id="obj-question" th:text = "${question.objQuestion?.questionContent}"></span>
+													</div>
+													<div id="sbj-question">
+														<span id="sbj-question" th:text = "${question.sbjQuestion?.questionContent}"></span>
+													</div>
+													
+													
+												</td>
+												<td>
+													<div>
+														<b><span th:text="${question.createdBy}"></span></b>
+														<br>
+														<b><span class="text-danger" th:text="${question.createdTime}"></span></b>
+													</div>
+												</td>
+												<td th:switch="${question.questionType}">
+													<span class="badge rounded-pill bg-warning text-dark" th:case="${'Objective Question'}">Objective Question</span>
+													<span class="badge rounded-pill bg-success"	th:case="${'Subjective Question'}">Subjective Question</span>
+												</td>
+												<td>
+													<a th:href="@{/getOneQuestion/(id=${question.id})}" style="font-size:30px; color:blue;" data-toggle="modal" title="Details" th:attr="data-target=|#question-detailsModal-${question.id}|"><i class='bx bx-list-ul'></i></a>
+													<a href ="#" style="font-size:30px; color:grey;" data-toggle="tooltip" data-placement="top" title="Edit"><i class='bx bx-edit' ></i></a>
+													<a href ="#" style="font-size:30px; color:red;"  data-toggle="tooltip" data-placement="top" title="Delete"><i class='bx bx-x'></i></a>
+												
+													<!-- Modal -->
+													
+													<div class="modal fade" th:id="|question-detailsModal-${question.id}|" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+													  <div class="modal-dialog">
+													    <div class="modal-content">
+													      <div class="modal-header">
+													        <h5 class="modal-title" id="staticBackdropLabel" th:text= "|Question ID: ${question.id}|">Question ID</h5>
+													        <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+													      </div>
+													      <div class="modal-body">
+													      	<b><label for ="question-label" class="form-label"> Question</label></b>	
+													      	<div class="mb-1">
+													      		<p>
+													      			<div >
+																		<span th:text = "${question.objQuestion?.questionContent}"></span>
+																	</div>
+																	<div>
+																		<span th:text = "${question.sbjQuestion?.questionContent}"></span>
+																	</div>
+													      		<p>
+													      	</div>
+													      	
+													      	<span>
+													      		<b><label for ="question-content" class="form-label" th:if="${question.objQuestion?.questionContent}">Choice</label></b>
+													      		<b><label for ="question-content" class="form-label" th:if="${question.sbjQuestion?.questionContent}">Content</label></b>
+													      	</span>
+													      	
+													      	<div class="question-content" th:if="${question.objQuestion?.questionContent}">
+													      		<div class="mb-2">
+													      			<div class="row">
+													      				<div class="col-1">
+													      					<input type="radio" value = "A" disabled>		
+													      					
+													      				</div>
+													      				<div class="col-7">
+													      					<p th:text= "|A. ${question.objQuestion?.choiceAContent}|"></p>		
+													      				</div>
+													      			</div>
+													      		</div>
+													      		<div class="mb-2">
+													      			<div class="row">
+													      				<div class="col-1">
+													      					<input type="radio" value = "B" disabled>
+													      				</div>
+													      				<div class="col-7">
+													      					<p th:text= "|B. ${question.objQuestion?.choiceBContent}|"></p>		
+													      				</div>
+													      			</div>
+													      		</div>
+													      		<div class="mb-2">
+													      			<div class="row">
+													      				<div class="col-1">
+													      					<input type="radio" value = "C" disabled>
+													      				</div>
+													      				<div class="col-7">
+													      					<p th:text= "|C. ${question.objQuestion?.choiceCContent}|"></p>		
+													      				</div>
+													      			</div> 
+													      		</div>
+													      		<div class="mb-2">
+													      			<div class="row">
+													      				<div class="col-1">
+													      					<input type="radio" value = "D" disabled>
+													      				</div>
+													      				<div class="col-7">
+													      					<p th:text= "|D. ${question.objQuestion?.choiceDContent}|"></p>		
+													      				</div>
+													      			</div>
+													      		</div>
+													      	</div>
+													      	
+													      	<div class="question-content" th:if="${question.sbjQuestion?.questionContent}">
+													      		<textarea class="form-control" id="questionAnswer" name="questionAnswer" disabled></textarea>
+													      	</div>
+													      		
+													      </div>
+													      <div class="modal-footer">
+													        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+													        <button type="button" class="btn btn-primary">Understood</button>
+													      </div>
+													    </div>
+														</div>
+													</div>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>			
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<script>
+		let sidebar = document.querySelector(".sidebar");
+		let sidebarBtn = document.querySelector(".sidebarBtn");
+		sidebarBtn.onclick = function() {
+			sidebar.classList.toggle("active");
+			if (sidebar.classList.contains("active")) {
+				sidebarBtn.classList.replace("bx-menu", "bx-menu-alt-right");
+			} else
+				sidebarBtn.classList.replace("bx-menu-alt-right", "bx-menu");
+		}
+	</script>
+</body>
+
+<script
+	src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+	integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+	crossorigin="anonymous"></script>
+<script
+	src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"
+	type="text/javascript"></script>
+<script
+	src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.min.js"
+	integrity="sha384-oesi62hOLfzrys4LxRF63OJCXdXDipiYWBnvTl9Y9/TRlw5xlKIEHpNyvvDShgf/"
+	crossorigin="anonymous"></script>
+<script src ="richtext/jquery.richtext.min.js"></script>
+<script src="js/main.js"></script>
+<script>
+</script>
+
+</html>
+
